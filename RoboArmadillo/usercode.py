@@ -30,27 +30,33 @@ def right(delay,comment,power):
 	time.sleep(delay)
 	R.motors[0].speed = 0
 	R.motors[1].speed = 0
+
+
+def distance_orderer(listname):
+    listname=sorted(listname, key=lambda Marker:Marker.distance)
+    return listname
 	
 
 
 while True:
 	
+	
 	markers = R.see((1280,1024),True,1)
-	print "can't see any markers"
-	
-	
+
 	if len(markers)>0:
-		primary = markers[0]
+		print markers[0].distance
+		print markers[0].marker_type
 		if markers[0].bearing.y < -10:
 			print "marker on the left"
-			left(0.5,"turning left",100)
+			left(0.1,"turning left",100)
 		elif markers[0].bearing.y > 10:
-			right(0.5,"turning right",100)
+			right(0.1,"turning right",100)
 			print "marker on the right"
 			
 		else:
 			forwards(2,"going forwards",100)
 	else:
+		print "cant see any markers"
 		left(0.3,"turning to look for markers",70)
 	
 	

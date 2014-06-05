@@ -116,6 +116,6 @@ class Robot(object):
 		'''
 
 
-	def see(self, (WIDTH, HEIGHT), preview, preview_time):
+	def see(self, (WIDTH, HEIGHT)=(1280,1024), preview=True, preview_time=1):
             n=vision_see((WIDTH, HEIGHT), preview, preview_time)
             return n 
