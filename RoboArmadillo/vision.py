@@ -20,14 +20,15 @@ def vision_see((WIDTH, HEIGHT) = (1280,1024), preview=True, preview_time=1):
 		camera = picamera.PiCamera()
 		camera.resolution = (WIDTH, HEIGHT)
 		camera.vflip=False
-		camera.close()
+		
 		
 		if preview:
 			camera.start_preview()
 			time.sleep(preview_time)
 			camera.stop_preview()
 		camera.capture("/media/robousb/lastpic.jpg")  
-
+		camera.close()
+		
 		pic=cv2.cv.LoadImage("/media/robousb/lastpic.jpg",CV_LOAD_IMAGE_GRAYSCALE) 
 		k = PyKoki()
 		m = k.find_markers_fp(pic, width_from_code, params) #from basic_example.py
