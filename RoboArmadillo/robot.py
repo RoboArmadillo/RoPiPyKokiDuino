@@ -32,7 +32,7 @@ but released as opensource software
 '''
 
 ser = serial.Serial("/dev/ttyACM0",9600, timeout= 2)
-
+round_length = 180
 
 class Robot(object):
 	def __init__(self):
@@ -91,6 +91,7 @@ class Robot(object):
 		while str(self.a) == "":
 			self.a = ser.readline().rstrip()
 		print "SWITCHES ON"
+
 		'''
 		while True:
 			a = self.staff_inputs[0].d
@@ -114,6 +115,14 @@ class Robot(object):
 				print "Starting User Code..."
 				break
 		'''
+		def Timer_exit(round_length):
+			while True:
+				time.sleep(round_length)
+				print "END OF ROUND, NOW EXITING CODE."
+				thread.interrupt_main()
+
+		if self.mode = "comp"
+			thread.start_new_thread(Timer_exit,(round_length))
 
 
 	def see(self, (WIDTH, HEIGHT)=(1280,1024), preview=True, preview_time=1):
