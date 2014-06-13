@@ -6,7 +6,7 @@ ser = serial.Serial("/dev/ttyACM0",9600, timeout= 2)
 
 class Motor(object):
     def __init__(self, which_motor, speed = 0):
-        global ser
+    global ser
         self._speed = speed;
         self._motor_no = which_motor
         
