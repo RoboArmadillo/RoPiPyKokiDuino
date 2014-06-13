@@ -6,7 +6,7 @@ ser = serial.Serial("/dev/ttyACM0",9600, timeout= 2)
 
 class Motor(object):
     def __init__(self, which_motor, speed = 0):
-	global ser
+    global ser
         self._speed = speed;
         self._motor_no = which_motor
         
@@ -21,28 +21,27 @@ class Motor(object):
         self._speed = value
         
         if self._speed <=100 and self._speed >= 0:
-		speed_float = float(self._speed)
-		speed_fraction=  speed_float/100.00
-		nearest_number_speed = round(speed_fraction *255.0,0)
-		int_speed = int(nearest_number_speed)
-		ser.write("2" + "," +str(self._motor_no) +","+str(int_speed))
-		self.a =ser.readline().rstrip()
-		if not str(self.a) == str(int_speed):
-                	print "CODE EXITED with ERROR 1: Serial Error"
-			sys.exit()
+            speed_float = float(self._speed)
+            speed_fraction=  speed_float/100.00
+            nearest_number_speed = round(speed_fraction *255.0,0)
+            int_speed = int(nearest_number_speed)
+            ser.write("2" + "," +str(self._motor_no) +","+str(int_speed))
+            self.a =ser.readline().rstrip()
+            if not str(self.a) == str(int_speed):
+                print "CODE EXITED with ERROR 1: Serial Error"
+                sys.exit()
 
-	if self._speed <0 and self._speed >= -100:
-		self._speed = abs(self._speed)
-		speed_float = float(self._speed)
-		speed_fraction=  speed_float/100.00
-		nearest_number_speed = round(speed_fraction *255.0,0)
-		int_speed = int(nearest_number_speed)
-
-		ser.write("3" + "," +str(self._motor_no) +","+str(int_speed))
-		a =ser.readline().rstrip()
-		if not int(a) == int(int_speed):
-                	print "CODE EXITED with ERROR 1: Serial Error"
-                	sys.exit()
+        if self._speed <0 and self._speed >= -100:
+            self._speed = abs(self._speed)
+            speed_float = float(self._speed)
+            speed_fraction=  speed_float/100.00
+            nearest_number_speed = round(speed_fraction *255.0,0)
+            int_speed = int(nearest_number_speed)
+            ser.write("3" + "," +str(self._motor_no) +","+str(int_speed))
+            a =ser.readline().rstrip()
+            if not int(a) == int(int_speed):
+                print "CODE EXITED with ERROR 1: Serial Error"
+                sys.exit()
             
         
         elif self._speed >100 or self._speed < -100:
