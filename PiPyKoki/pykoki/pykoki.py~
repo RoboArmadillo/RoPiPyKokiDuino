@@ -1,6 +1,5 @@
 from ctypes import *
 import os
-import v4l2
 from opencv_pytypes import IplImageType
 import cv2
 
@@ -73,7 +72,7 @@ class MarkerRotation(Structure):
 
 
 class Marker(Structure):
-    _fields_ = [("code", c_uint8), ("centre", MarkerVertex), ("vertices", MarkerVertex * 4),
+    _fields_ = [("code", c_uint8), ("image", Point2Df) ,("world", Point3Df),
                 ("rotation_offset", c_float), ("rotation", MarkerRotation),
                 ("bearing", Bearing), ("distance", c_float)]
 
@@ -161,71 +160,8 @@ def cv_ipl_p_extract(pyipl):
 
     return p[0].a
 
-class V4LCamera(object):
-    def __init__(self, filename, libkoki):
-        self.libkoki = libkoki
-
-        self.fd = self.libkoki.koki_v4l_open_cam(filename)
-
-        if self.fd < 0:
-            raise Exception("Couldn't open camera '%s'" % (cam_dev))
-
-        self.buffers = None
-        self.buffer_count = 0
-
-    def __del__(self):
-        self._free_buffers()
-        self.libkoki.koki_v4l_close_cam(self.fd)
-
-    @property
-    def format(self):
-        "The camera's image format"
-        return self.libkoki.koki_v4l_get_format(self.fd)
-
-    @format.setter
-    def format(self, fmt):
-        return self.libkoki.koki_v4l_set_format(self.fd, fmt)
-
-    def start_stream(self):
-        "Start streaming from the camera"
-        return self.libkoki.koki_v4l_start_stream(self.fd)
-
-    def stop_stream(self):
-        "Stop streaming from the camera"
-        return self.libkoki.koki_v4l_stop_stream(self.fd)
-
-    def prepare_buffers(self, count_p):
-        "Allocate all the buffers required for IO with the camera"
-        if self.buffers != None:
-            self._free_buffers()
-
-        c = c_int(count_p)
-
-        self.buffers = self.libkoki.koki_v4l_prepare_buffers(self.fd, byref(c))
-        self.buffer_count = c
-
-    def _free_buffers(self):
-        if self.buffers == None:
-            return
-
-        self.libkoki.koki_v4l_free_buffers( self.buffers, self.buffer_count )
-        self.buffers = None
-        self.buffer_count = 0
-
-    def get_frame(self):
-        return self.libkoki.koki_v4l_get_frame_array(self.fd, self.buffers)
-
-    def get_control(self, id):
-        "Get a V4L2 control value from the camera"
-        return self.libkoki.koki_v4l_get_control(self.fd, id)
-
-    def set_control(self, id, value):
-        "Set a V4L2 control value on the camera"
-        return self.libkoki.koki_v4l_set_control(self.fd, id, value)
-
-
 class PyKoki:
-    def __init__(self, libdir = "../libkoki/lib"):
+    def __init__(self, libdir = "/usr/lib"):
         self._load_library(libdir)
         self._setup_library()
 
@@ -250,65 +186,6 @@ class PyKoki:
 
     def _setup_library(self):
         l = self.libkoki
-
-        ### v4l.h ###
-
-        # int koki_v4l_open_cam(const char* filename)
-        l.koki_v4l_open_cam.argtypes = [c_char_p]
-        l.koki_v4l_open_cam.restype = c_int
-
-        # void koki_v4l_close_cam(int fd)
-        l.koki_v4l_close_cam.argtypes = [c_int]
-
-        # struct v4l2_format koki_v4l_get_format()
-        l.koki_v4l_get_format.argtypes = [c_int]
-        #l.koki_v4l_get_format.restype = v4l2.v4l2_format
-
-        # int koki_v4l_set_format(int fd, struct v4l2_format fmt)
-        l.koki_v4l_set_format.argtypes = [c_int, v4l2.v4l2_format]
-        l.koki_v4l_set_format.restype = c_int
-
-        # struct v4l2_format koki_v4l_create_YUYV_format(unsigned int w, unsigned int h)
-        l.koki_v4l_create_YUYV_format.argtypes = [c_uint, c_uint]
-        l.koki_v4l_create_YUYV_format.restype = v4l2.v4l2_format
-
-        # void koki_v4l_print_format(struct v4l2_format fmt)
-        l.koki_v4l_print_format.argtypes = [v4l2.v4l2_format]
-
-        # koki_buffer_t* koki_v4l_prepare_buffers(int fd, int *count)
-        l.koki_v4l_prepare_buffers.argtypes = [c_int, POINTER(c_int)]
-        l.koki_v4l_prepare_buffers.restype = POINTER(Buffer)
-
-        # void koki_v4l_free_buffers(koki_buffer_t *buffers, int count)
-        l.koki_v4l_free_buffers.argtypes = [ POINTER(Buffer), c_int ]
-
-        # int koki_v4l_start_stream(int fd)
-        l.koki_v4l_start_stream.argtypes = [c_int]
-        l.koki_v4l_start_stream.restype = c_int
-
-        # int koki_v4l_stop_stream(int fd)
-        l.koki_v4l_stop_stream.argtypes = [c_int]
-        l.koki_v4l_stop_stream.restype = c_int
-
-        # uint8_t* koki_v4l_get_frame_array(int fd, koki_buffer_t *buffers)
-        l.koki_v4l_get_frame_array.argtypes = [c_int, POINTER(Buffer)]
-        l.koki_v4l_get_frame_array.restype = POINTER(c_uint8)
-
-        # IplImage *koki_v4l_YUYV_frame_to_RGB_image(uint8_t *frame, uint16_t w, uint16_t h)
-        l.koki_v4l_YUYV_frame_to_RGB_image.argtypes = [POINTER(c_uint8), c_uint16, c_uint16]
-        l.koki_v4l_YUYV_frame_to_RGB_image.restype = c_void_p
-
-        # IplImage *koki_v4l_YUYV_frame_to_grayscale_image(uint8_t *frame, uint16_t w, uint16_t h)
-        l.koki_v4l_YUYV_frame_to_grayscale_image.argtypes = [POINTER(c_uint8), c_uint16, c_uint16]
-        l.koki_v4l_YUYV_frame_to_grayscale_image.restype = c_void_p
-
-        # int koki_v4l_get_control(int fd, unsigned int id)
-        l.koki_v4l_get_control.argtypes = [c_int, c_uint]
-        l.koki_v4l_get_control.restype = c_int
-
-        # int koki_v4l_set_control(int fd, unsigned int id, unsigned int value)
-        l.koki_v4l_set_control.argtypes = [c_int, c_uint, c_uint]
-        l.koki_v4l_set_control.restype = c_int
 
         # koki_t* koki_new( void );
         l.koki_new.argtypes = []
@@ -345,21 +222,6 @@ class PyKoki:
         ret = type(o)()
         pointer(ret)[0] = o
         return ret
-
-    def open_camera(self, filename):
-        return V4LCamera(filename, self.libkoki)
-
-    def v4l_create_YUYV_format(self, w, h):
-        return self.libkoki.koki_v4l_create_YUYV_format(w, h)
-
-    def v4l_print_format(self, fmt):
-        self.libkoki.koki_v4l_print_format(fmt)
-
-    def v4l_YUYV_frame_to_RGB_image(self, frame, w, h):
-        return self.libkoki.koki_v4l_YUYV_frame_to_RGB_image(frame, w, h)
-
-    def v4l_YUYV_frame_to_grayscale_image(self, frame, w, h):
-        return self.libkoki.koki_v4l_YUYV_frame_to_grayscale_image(frame, w, h)
 
     def image_free(self, img):
         self.libkoki.koki_image_free(img)

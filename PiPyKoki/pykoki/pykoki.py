@@ -72,7 +72,7 @@ class MarkerRotation(Structure):
 
 
 class Marker(Structure):
-    _fields_ = [("code", c_uint8), ("centre", MarkerVertex), ("vertices", MarkerVertex * 4),
+    _fields_ = [("code", c_uint8), ("image", Point2Df) ,("world", Point3Df),
                 ("rotation_offset", c_float), ("rotation", MarkerRotation),
                 ("bearing", Bearing), ("distance", c_float)]
 
