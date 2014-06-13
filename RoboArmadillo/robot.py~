@@ -121,7 +121,7 @@ class Robot(object):
 				print "END OF ROUND, NOW EXITING CODE."
 				thread.interrupt_main()
 
-		if self.mode == "comp"
+		if self.mode == "comp":
 			thread.start_new_thread(Timer_exit,(round_length))
 
 

@@ -31,7 +31,7 @@ but released as opensource software
 #################
 '''
 
-ser = serial.Serial("/dev/ttyACM0",9600, timeout= 2)
+ser = serial.Serial("/dev/ttyACM0",115200, timeout= 2)
 round_length = 180
 
 class Robot(object):

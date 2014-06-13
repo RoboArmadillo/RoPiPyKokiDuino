@@ -2,7 +2,7 @@ import os,sys
 import serial
 import time 
 
-ser = serial.Serial("/dev/ttyACM0",115200, timeout= 2)
+ser = serial.Serial("/dev/ttyACM0",115200, timeout= 2))
 
 #arduino won't read strings as im using getint() so changed query to 1
 
