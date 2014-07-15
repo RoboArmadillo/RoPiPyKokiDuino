@@ -13,9 +13,7 @@ import picamera
 from vision import *
 
 '''
-Created By Adam Ferguson (@robo_python) 2013
-In subsequent uses orginal creator must be credited
-but released as opensource software
+Created By Adam Ferguson (RoboPython @ RoboArmadillo) 2013
 '''
 
 
